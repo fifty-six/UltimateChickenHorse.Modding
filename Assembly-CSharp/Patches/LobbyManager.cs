@@ -8,9 +8,6 @@ namespace Modding.Patches
     [MonoModPatch("global::LobbyManager")]
     public class LobbyManager : global::LobbyManager
     {
-        [MonoModIgnore]
-        public new NetworkLobbyPlayer[] lobbySlots;
-        
         [MonoModConstructor]
         public LobbyManager()
         {

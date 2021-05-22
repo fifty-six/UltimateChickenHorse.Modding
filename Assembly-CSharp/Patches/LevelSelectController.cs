@@ -10,9 +10,6 @@ namespace Modding.Patches
     [MonoModPatch("global::LevelSelectController")]
     public class LevelSelectController : global::LevelSelectController
     {
-        [MonoModIgnore]
-        public new playerJoinIndicator[] PlayerJoinIndicators;
-
         [MonoModConstructor]
         public LevelSelectController()
         {

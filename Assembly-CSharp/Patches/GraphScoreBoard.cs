@@ -8,9 +8,6 @@ namespace Modding.Patches
     [MonoModPatch("global::GraphScoreBoard")]
     public class GraphScoreBoard : global::GraphScoreBoard
     {
-        [MonoModIgnore]
-        public new RectTransform[] ScorePositions;
-
         [MonoModConstructor]
         public GraphScoreBoard()
         {

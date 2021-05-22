@@ -12,9 +12,6 @@ namespace Modding.Patches
     [MonoModPatch("global::Controller")]
     public abstract class Controller : global::Controller
     {
-        [MonoModIgnore]
-        protected new Character.Animals[] associatedChars;
-
         [MonoModConstructor]
         public Controller()
         {

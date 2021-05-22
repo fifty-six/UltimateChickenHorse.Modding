@@ -8,10 +8,8 @@ using UnityEngine;
 namespace Modding.Patches
 {
     [MonoModPatch("global::Scoreboard")]
-    public class Scoreboard
+    public class Scoreboard : global::Scoreboard
     {
-        public Transform[] ScorePositions;
-
         public Scoreboard()
         {
             ScorePositions = new Transform[Constants.PlayerCount];
