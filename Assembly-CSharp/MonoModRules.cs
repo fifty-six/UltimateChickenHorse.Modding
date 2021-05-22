@@ -51,6 +51,8 @@ namespace MonoMod
         [SuppressMessage("ReSharper", "SuggestVarOrType_SimpleTypes")]
         static MonoModRules()
         {
+            ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "CheckHostConnectivity");
+            
             ReplaceLdcPlayerCt(nameof(ChallengeScoreboard), "showResult");
 
             ReplaceLdcPlayerCt(nameof(ControllerDisconnect), "assignControllerToPlayer");
