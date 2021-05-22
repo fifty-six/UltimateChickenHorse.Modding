@@ -1,8 +1,19 @@
+using MonoMod;
+
+// ReSharper disable NotAccessedField.Global
+
 namespace Modding.Patches
 {
+    [MonoModPatch("global::GameState")]
     public class GameState : global::GameState
     {
-        // ReSharper disable once NotAccessedField.Global
-        public new int[] PlayerScores = new int[Constants.PlayerCount];
+        [MonoModIgnore]
+        public new int[] PlayerScores;
+
+        [MonoModConstructor]
+        public GameState()
+        {
+            PlayerScores = new int[Constants.PlayerCount];
+        }
     }
 }

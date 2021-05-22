@@ -1,19 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MonoMod;
 using UnityEngine;
 
+// ReSharper disable NotAccessedField.Local
 // ReSharper disable AccessToStaticMemberViaDerivedType
 
 namespace Modding.Patches
 {
+    [MonoModPatch("global::ControllerDisconnect")]
     public class ControllerDisconnect : global::ControllerDisconnect
     {
-        private static bool[] showingPrompts = new bool[Constants.PlayerCount];
+        [MonoModIgnore]
+        private static bool[] showingPrompts;
 
-        private List<InputReceiver>[] orphanedReceivers = Enumerable.Range(0, Constants.PlayerCount).Select(_ => new List<InputReceiver>()).ToArray();
-        
-        private Character.Animals[][] orphanedCharacters = new Character.Animals[Constants.PlayerCount][];
+        [MonoModIgnore]
+        private List<InputReceiver>[] orphanedReceivers;
+
+        [MonoModIgnore]
+        private Character.Animals[][] orphanedCharacters;
+
+        [MonoModConstructor]
+        public ControllerDisconnect()
+        {
+            showingPrompts = new bool[Constants.PlayerCount];
+
+            orphanedReceivers = Enumerable.Range(0, Constants.PlayerCount).Select(_ => new List<InputReceiver>()).ToArray();
+
+            orphanedCharacters = new Character.Animals[Constants.PlayerCount][];
+        }
 
         private extern void orig_Start();
 

@@ -1,13 +1,23 @@
 using System;
 using System.Collections;
+using MonoMod;
 using UnityEngine;
 using UnityEngine.Networking;
+// ReSharper disable UnusedMember.Local
 
 namespace Modding.Patches
 {
+    [MonoModPatch("global::LevelSelectController")]
     public class LevelSelectController : global::LevelSelectController
     {
-        public playerJoinIndicator[] PlayerJoinIndicators = new playerJoinIndicator[Constants.PlayerCount];
+        [MonoModIgnore]
+        public new playerJoinIndicator[] PlayerJoinIndicators;
+
+        [MonoModConstructor]
+        public LevelSelectController()
+        {
+            PlayerJoinIndicators = new playerJoinIndicator[Constants.PlayerCount];
+        }
 
         private extern void orig_Awake();
 
@@ -26,6 +36,7 @@ namespace Modding.Patches
 
         private extern IEnumerator orig_createCursorForPlayer(GameObject lobbyPlayerObj, bool showCursor);
 
+        [MonoModReplace]
         private IEnumerator createCursorForPlayer(GameObject lobbyPlayerObj, bool showCursor)
         {
             LobbyPlayer lobbyPlayer = null;
@@ -91,6 +102,63 @@ namespace Modding.Patches
             {
                 cursor.SetLocalController(lobbyPlayer.LocalPlayer.UseController);
             }
+        }
+
+        // Method used to throw, patch in some logs
+        [MonoModReplace]
+        private IEnumerator setupLobbyCursor(GameObject lobbyCursorObj)
+        {
+            LobbyCursor lobbyCursor;
+            
+            do
+            {
+                lobbyCursor = lobbyCursorObj.GetComponent<LobbyCursor>();
+                yield return null;
+            }
+            while (lobbyCursor == null || lobbyCursor.AssociatedLobbyPlayer == null);
+
+            lobbyCursor.SetBounds(CursorBounds);
+            
+            Debug.LogError("Before Instantiate (LevelSelectController::setupLobbyCursor)");
+            
+            var componentInChildren = Instantiate
+                (
+                    magicSmoke,
+                    CursorSpawnPoint[lobbyCursor.AssociatedLobbyPlayer.networkNumber - 1].position,
+                    Quaternion.identity
+                )
+                .GetComponentInChildren<SpriteRenderer>();
+            
+            Debug.LogError("After Instantiate (LevelSelectController::setupLobbyCursor)");
+            
+            componentInChildren.color = lobbyCursor.AssociatedLobbyPlayer.PlayerColor;
+            componentInChildren.gameObject.layer = LayerMask.NameToLayer("LobbyCursors");
+            
+            try
+            {
+                PlayerJoinIndicators[lobbyCursor.networkNumber - 1].setTintColor(lobbyCursor.AssociatedLobbyPlayer.PlayerColor);
+                PlayerJoinIndicators[lobbyCursor.networkNumber - 1].ChooseCharacterEnabled();
+            }
+            catch (NullReferenceException)
+            {
+                Debug.LogError("Player join indicator is null!");
+            }
+
+            lobbyCursor.AssociatedLobbyPlayer.RunAfterInitialized
+            (
+                () =>
+                {
+                    if (!lobbyCursor.AssociatedLobbyPlayer.IsLocalPlayer)
+                        return;
+
+                    Player player = global::PlayerManager.GetInstance().GetPlayer(lobbyCursor.localNumber);
+                    lobbyCursor.LocalPlayer = player;
+                    lobbyCursor.UseCamera = MainCamera.GetComponent<Camera>();
+                    player.PlayerCursor = lobbyCursor;
+                }
+            );
+
+            MainCamera.AddTarget(lobbyCursor);
         }
     }
 }

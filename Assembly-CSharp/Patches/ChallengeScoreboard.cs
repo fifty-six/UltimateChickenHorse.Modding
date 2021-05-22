@@ -1,18 +1,33 @@
+using System;
 using MonoMod;
 using UnityEngine.UI;
+
 // ReSharper disable NotAccessedField.Global
 // ReSharper disable UnusedMember.Local
+// ReSharper disable NotAccessedField.Local
 
 namespace Modding.Patches
 {
+    [MonoModPatch("global::ChallengeScoreboard")]
     public class ChallengeScoreboard : global::ChallengeScoreboard
     {
-        [MonoModReplace]
-        public new Image[] CharacterSprites = new Image[Constants.PlayerCount];
-        
-        [MonoModReplace]
-        public new Image[] CharacterSpritesBG = new Image[Constants.PlayerCount];
+        [MonoModIgnore]
+        public new Image[] CharacterSprites;
 
-        private ChallengePlayer[] players = new ChallengePlayer[Constants.PlayerCount];
+        [MonoModIgnore]
+        public new Image[] CharacterSpritesBG;
+
+        [MonoModIgnore]
+        private ChallengePlayer[] players;
+
+        [MonoModConstructor]
+        public ChallengeScoreboard()
+        {
+            CharacterSprites = new Image[Constants.PlayerCount];
+            CharacterSpritesBG = new Image[Constants.PlayerCount];
+            players = new ChallengePlayer[Constants.PlayerCount];
+
+            Console.WriteLine("sonia play uch");
+        }
     }
 }

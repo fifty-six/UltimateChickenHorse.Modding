@@ -14,8 +14,8 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <RestorePackagesPath>packages</RestorePackagesPath>
         
-        <!-- Don't really need to document patches -->
-        <NoWarn>1591</NoWarn>
+        <!-- Don't really need to document patches, extern has special meanings with MonoMod. -->
+        <NoWarn>1591, 0626</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -37,7 +37,6 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Delete Condition="Exists('$(OutputDir)')" Files="$(OutputDir)" />
-        <Delete Condition="Exists('$(SolutionDir)ModdingAPI.zip')" Files="$(SolutionDir)ModdingAPI.zip" />
 
         <Copy SkipUnchangedFiles="true" SourceFiles="@(Files)" DestinationFolder="@(BuildDir)" />
 
@@ -57,9 +56,6 @@
 
         <!-- Copy the dependencies -->
         <Copy SourceFiles="@(Dependencies)" DestinationFolder="$(OutputDir)" />
-
-        <!-- Zip for distribution -->
-        <ZipDirectory SourceDirectory="$(OutputDir)" DestinationFile="$(SolutionDir)ModdingAPI.zip" />
     </Target>
 
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

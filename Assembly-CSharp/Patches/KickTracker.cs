@@ -1,16 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using MonoMod;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Modding.Patches
 {
     // ReSharper disable once UnusedType.Global
+    [MonoModPatch("global::KickTracker")]
     public class KickTracker : global::KickTracker
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
+        [MonoModIgnore]
         private bool[][] votes;
-        
+
         [MonoModReplace]
         public KickTracker()
         {
@@ -39,7 +42,7 @@ namespace Modding.Patches
 
             return arr.Select(x => x).Count();
         }
-        
+
         [MonoModReplace]
         public new IEnumerable<int> VotesFromNetworkNumber(int networkNumber)
         {
