@@ -12,12 +12,6 @@ namespace Modding.Patches
     public class ChallengeScoreboard : global::ChallengeScoreboard
     {
         [MonoModIgnore]
-        public new Image[] CharacterSprites;
-
-        [MonoModIgnore]
-        public new Image[] CharacterSpritesBG;
-
-        [MonoModIgnore]
         private ChallengePlayer[] players;
 
         [MonoModConstructor]

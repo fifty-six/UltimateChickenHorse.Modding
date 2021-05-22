@@ -7,9 +7,6 @@ namespace Modding.Patches
     [MonoModPatch("global::GameState")]
     public class GameState : global::GameState
     {
-        [MonoModIgnore]
-        public new int[] PlayerScores;
-
         [MonoModConstructor]
         public GameState()
         {

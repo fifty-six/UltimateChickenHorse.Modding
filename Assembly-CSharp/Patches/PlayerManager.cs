@@ -1,5 +1,5 @@
 using MonoMod;
-
+// ReSharper disable NotAccessedField.Local
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
