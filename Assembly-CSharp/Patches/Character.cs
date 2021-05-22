@@ -1,7 +1,9 @@
+using MonoMod;
 using UnityEngine;
 
 namespace Modding.Patches
 {
+    [MonoModPatch("global::Character")]
     public class Character : global::Character
     {
         public new void CreateFlies()

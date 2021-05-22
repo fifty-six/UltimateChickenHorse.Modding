@@ -1,11 +1,19 @@
 using MonoMod;
 
+// ReSharper disable NotAccessedField.Global
+
 namespace Modding.Patches
 {
+    [MonoModPatch("global::GameSettings")]
     public class GameSettings : global::GameSettings
     {
-        [MonoModReplace]
-        // ReSharper disable once NotAccessedField.Global
-        public new int MaxPlayers = Constants.PlayerCount;
+        [MonoModIgnore]
+        public new int MaxPlayers;
+
+        [MonoModConstructor]
+        public GameSettings()
+        {
+            MaxPlayers = Constants.PlayerCount;
+        }
     }
 }

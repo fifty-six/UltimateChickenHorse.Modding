@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using JetBrains.Annotations;
 using Modding;
 using Mono.Cecil;
@@ -29,10 +30,10 @@ namespace MonoMod
             return md;
         }
 
-        private static void ReplaceLdcPlayerCt(string type, string method)
+        private static void ReplaceLdcPlayerCt(string type, string method, int input = 4, int result = Constants.PlayerCount)
         {
             MethodDefinition md = GetMethod(type, method);
-            
+
             if (!md.HasBody)
             {
                 throw new InvalidOperationException($"Method {method} has no body!");
@@ -40,10 +41,10 @@ namespace MonoMod
 
             var cursor = new ILCursor(new ILContext(md));
 
-            while (cursor.TryGotoNext(x => x.MatchLdcI4(4)))
+            while (cursor.TryGotoNext(x => x.MatchLdcI4(input)))
             {
                 cursor.Remove();
-                cursor.Emit(OpCodes.Ldc_I4, Constants.PlayerCount);
+                cursor.Emit(OpCodes.Ldc_I4, result);
             }
         }
 
@@ -57,12 +58,23 @@ namespace MonoMod
 
             ReplaceLdcPlayerCt(nameof(ControllerDisconnect), "assignControllerToPlayer");
 
+            ReplaceLdcPlayerCt(nameof(LobbyPointCounter), nameof(LobbyPointCounter.handleEvent));
+
+            ReplaceLdcPlayerCt(nameof(PartyBox), nameof(PartyBox.AddPlayer));
+
+            ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.GetPlayerScore), 3);
+            ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.IncrementPlayerScore), 3);
+            ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerScore), 3);
+            ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerCount));
+            ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerCharacter), 3);
+            
             {
                 var md = GetMethod(nameof(GameControl), nameof(GameControl.ReceiveEvent));
 
                 var cursor = new ILCursor(new ILContext(md));
 
-                cursor.GotoNext(
+                cursor.GotoNext
+                (
                     MoveType.After,
                     x => x.MatchLdcI4(4),
                     x => x.MatchStfld<GameControl>("inputPlayerNumber")
@@ -70,29 +82,36 @@ namespace MonoMod
 
                 // Instance for stfld.
                 cursor.Emit(OpCodes.Ldarg_0);
-                
+
                 // InputEvent for delegate
                 cursor.Emit(OpCodes.Ldarg_1);
-                 
-                cursor.EmitDelegate<Func<InputEvent, int>>(e =>
-                {
-                    int res = 0;
-                    
-                    for (int i = 1; i <= Constants.PlayerCount; i++)
-                    {
-                        int pow = 1 << (i - 1);
-                        
-                        if ((e.PlayerBitMask & pow) == pow)
-                        {
-                            res = i;
-                        }
-                    }
 
-                    return res;
-                });
+                cursor.Emit(OpCodes.Call, typeof(MonoModRules).GetMethod(nameof(GetPlayerNumber)));
 
                 cursor.Emit<GameControl>(OpCodes.Stfld, "inputPlayerNumber");
             }
+
+            var modder = MonoModRule.Modder;
+            
+            foreach (MethodDefinition method in modder.Module.Types.SelectMany(type => type.Methods))
+                method.FixShortLongOps();
+        }
+
+        public static int GetPlayerNumber(InputEvent e)
+        {
+            int res = 0;
+
+            for (int i = 1; i <= Constants.PlayerCount; i++)
+            {
+                int pow = 1 << (i - 1);
+
+                if ((e.PlayerBitMask & pow) == pow)
+                {
+                    res = i;
+                }
+            }
+
+            return res;
         }
     }
 }
