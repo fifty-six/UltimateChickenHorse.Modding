@@ -2,12 +2,14 @@
 
 namespace Modding.Patches
 {
+    [MonoModPatch("global::StatTracker")]
     public class StatTracker : global::StatTracker
     {
-        [MonoModReplace]
-        public new SaveFileData[] saveFiles = new SaveFileData[Constants.PlayerCount];
-
-        [MonoModReplace]
-        public new StatTracker.SaveFileStatus[] saveStatuses = new StatTracker.SaveFileStatus[Constants.PlayerCount];
+        [MonoModConstructor]
+        public StatTracker()
+        {
+            saveFiles = new global::SaveFileData[Constants.PlayerCount];
+            saveStatuses = new SaveFileStatus[Constants.PlayerCount];
+        }
     }
 }

@@ -1,6 +1,6 @@
 namespace Modding
 {
-    public class Constants
+    public static class Constants
     {
         public const int PlayerCount = 8;
     }

@@ -33,9 +33,7 @@ namespace Modding.Patches
             Debug.LogWarning($"Joined players length is not {Constants.PlayerCount}! (LevelSelectController::Awake)");
             Array.Resize(ref JoinedPlayers, Constants.PlayerCount);
         }
-
-        private extern IEnumerator orig_createCursorForPlayer(GameObject lobbyPlayerObj, bool showCursor);
-
+        
         [MonoModReplace]
         private IEnumerator createCursorForPlayer(GameObject lobbyPlayerObj, bool showCursor)
         {

@@ -3,10 +3,16 @@ using MonoMod;
 
 namespace Modding.Patches
 {
+    [MonoModPatch("globa::Tablet")]
     public class Tablet : global::Tablet
-
     {
-        [MonoModReplace]
-        private List<PickCursor> untrackedCursors = new List<PickCursor>(Constants.PlayerCount);
+        [MonoModIgnore]
+        private List<PickCursor> untrackedCursors;
+
+        [MonoModConstructor]
+        public Tablet()
+        {
+            untrackedCursors = new List<PickCursor>(Constants.PlayerCount);
+        }
     }
 }

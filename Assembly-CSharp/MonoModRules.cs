@@ -52,7 +52,10 @@ namespace MonoMod
         [SuppressMessage("ReSharper", "SuggestVarOrType_SimpleTypes")]
         static MonoModRules()
         {
+            ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "CreateUnityMatch");
             ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "CheckHostConnectivity");
+            
+            ReplaceLdcPlayerCt(nameof(SteamMatchmaker), "createSocialLobby");
             
             ReplaceLdcPlayerCt(nameof(ChallengeScoreboard), "showResult");
 
@@ -67,6 +70,10 @@ namespace MonoMod
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerScore), 3);
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerCount));
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerCharacter), 3);
+            
+            ReplaceLdcPlayerCt(nameof(TurnIndicator), nameof(TurnIndicator.SetPlayerCount));
+            ReplaceLdcPlayerCt(nameof(TurnIndicator), nameof(TurnIndicator.SetPlayerCharacter), 3);
+            ReplaceLdcPlayerCt(nameof(TurnIndicator), nameof(TurnIndicator.SwapPhase), 3);
             
             {
                 var md = GetMethod(nameof(GameControl), nameof(GameControl.ReceiveEvent));
