@@ -1,7 +1,9 @@
 using System;
-using System.Reflection;
 using MonoMod;
+using UnityEngine;
 using UnityEngine.Networking;
+using Random = UnityEngine.Random;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace Modding.Patches
 {
@@ -12,13 +14,44 @@ namespace Modding.Patches
         public LobbyManager()
         {
             Array.Resize(ref lobbySlots, Constants.PlayerCount);
-            
-            FieldInfo fi = typeof(NetworkLobbyManager).GetField("m_MaxPlayers", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            if (fi is null)
-                throw new NullReferenceException("Unable to get FieldInfo for field m_MaxPlayers on NetworkLobbyManager (LobbyManager::ctor)");
-            
-            fi.SetValue(this, Constants.PlayerCount);
+            maxPlayers = Constants.PlayerCount;
         }
+
+        public extern void orig_OnServerAddPlayer(NetworkConnection conn, short playerControllerId);
+
+        public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+        {
+            // Gets overwritten by serialization or something, gotta set it again.
+            maxPlayers = Constants.PlayerCount;
+
+            // Same deal.
+            if (lobbySlots.Length != Constants.PlayerCount)
+            {
+                Array.Resize(ref lobbySlots, Constants.PlayerCount);
+            }
+
+            orig_OnServerAddPlayer(conn, playerControllerId);
+        }
+
+        public extern GameObject orig_OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId);
+
+        public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
+        {
+            var settings = global::GameSettings.GetInstance();
+            
+            if (settings.PlayerColors.Length == Constants.PlayerCount) 
+                return orig_OnLobbyServerCreateLobbyPlayer(conn, playerControllerId);
+            
+            Array.Resize(ref settings.PlayerColors, Constants.PlayerCount);
+            
+            for (int i = 4; i < Constants.PlayerCount; i++)
+            {
+                settings.PlayerColors[i] = new Color(Random.Range(0, 1f), Random.Range(0, 1f), Random.Range(0, 1f));
+            }
+
+            return orig_OnLobbyServerCreateLobbyPlayer(conn, playerControllerId);
+        }
+
     }
 }

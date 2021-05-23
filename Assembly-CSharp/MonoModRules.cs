@@ -30,7 +30,13 @@ namespace MonoMod
             return md;
         }
 
-        private static void ReplaceLdcPlayerCt(string type, string method, int input = 4, int result = Constants.PlayerCount)
+        private static void ReplaceLdcPlayerCt
+        (
+            string type,
+            string method,
+            int input = 4,
+            int result = Constants.PlayerCount
+        )
         {
             MethodDefinition md = GetMethod(type, method);
 
@@ -48,6 +54,28 @@ namespace MonoMod
             }
         }
 
+        private static void ReplaceFirstLdcPlayerCt
+        (
+            string type,
+            string method,
+            int input = 4,
+            int result = Constants.PlayerCount
+        )
+        {
+            MethodDefinition md = GetMethod(type, method);
+
+            if (!md.HasBody)
+            {
+                throw new InvalidOperationException($"Method {method} has no body!");
+            }
+
+            var cursor = new ILCursor(new ILContext(md));
+
+            cursor.GotoNext(x => x.MatchLdcI4(input));
+            cursor.Remove();
+            cursor.Emit(OpCodes.Ldc_I4, result);
+        }
+
         [UsedImplicitly]
         [SuppressMessage("ReSharper", "SuggestVarOrType_SimpleTypes")]
         static MonoModRules()
@@ -63,7 +91,9 @@ namespace MonoMod
 
             ReplaceLdcPlayerCt(nameof(LobbyPointCounter), nameof(LobbyPointCounter.handleEvent));
 
-            ReplaceLdcPlayerCt(nameof(PartyBox), nameof(PartyBox.AddPlayer));
+            // Can't replace all - we index into an array at predefined index [4] in array of length 8, so array[8] throws.
+            ReplaceFirstLdcPlayerCt(nameof(PartyBox), nameof(PartyBox.AddPlayer));
+            ReplaceLdcPlayerCt(nameof(PartyBox), nameof(PartyBox.SetPlayerCount));
 
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.GetPlayerScore), 3);
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.IncrementPlayerScore), 3);
@@ -103,10 +133,10 @@ namespace MonoMod
                 // This way we're after the ldarg.1 (e) in `e.Key`, so the branches of our if
                 // has it point at our code first.
                 cursor.Index += 1;
-                
+
                 // Instance for stfld.
                 cursor.Emit(OpCodes.Ldarg_0);
-                
+
                 // InputEvent for delegate
                 cursor.Emit(OpCodes.Ldarg_1);
 

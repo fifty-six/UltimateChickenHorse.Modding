@@ -15,6 +15,7 @@ namespace Modding.Patches
         [MonoModIgnore]
         private bool[] playerAFK;
 
+        [MonoModConstructor]
         public LobbyPointCounter()
         {
             playerJoinedGame = new bool[Constants.PlayerCount];

@@ -43,6 +43,14 @@ namespace Modding.Patches
                 Debug.LogWarning($"ControllerDisconnect ConnectPrompts[n] null?: {prompt == null}");
             }
 
+            for (int i = 4; i < Constants.PlayerCount; i++)
+            {
+                if (ConnectPrompts[i]) 
+                    continue;
+                
+                ConnectPrompts[i] = Instantiate(ConnectPrompts[i - 1]);
+            }
+
             try
             {
                 orig_Start();

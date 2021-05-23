@@ -14,6 +14,7 @@ namespace Modding.Patches
         public LevelSelectController()
         {
             PlayerJoinIndicators = new playerJoinIndicator[Constants.PlayerCount];
+            JoinedPlayers = new LobbyPlayer[Constants.PlayerCount];
         }
 
         private extern void orig_Awake();
@@ -24,11 +25,39 @@ namespace Modding.Patches
 
             MaxPlayers = Constants.PlayerCount;
 
-            if (JoinedPlayers.Length == Constants.PlayerCount)
+            if (JoinedPlayers.Length != Constants.PlayerCount)
+            {
+                Debug.LogWarning($"Joined players length is not {Constants.PlayerCount}! (LevelSelectController::Awake)");
+                Array.Resize(ref JoinedPlayers, Constants.PlayerCount);
                 return;
+            }
 
-            Debug.LogWarning($"Joined players length is not {Constants.PlayerCount}! (LevelSelectController::Awake)");
-            Array.Resize(ref JoinedPlayers, Constants.PlayerCount);
+            for (int i = 4; i <= Constants.PlayerCount; i++)
+            {
+                if (JoinedPlayers[i] != null)
+                    continue;
+
+                Debug.LogWarning($"JoinedPlayers[{i}] is null. Instantiating clone.");
+
+                JoinedPlayers[i] = Instantiate(JoinedPlayers[i - 1]);
+            }
+        }
+
+        private extern void orig_TryAddLocalPlayer(Controller sender);
+
+        private void TryAddLocalPlayer(Controller sender)
+        {
+            if (PlayerJoinIndicators.Length != Constants.PlayerCount)
+            {
+                Array.Resize(ref PlayerJoinIndicators, Constants.PlayerCount);
+
+                for (int i = 4; i < Constants.PlayerCount; i++)
+                {
+                    PlayerJoinIndicators[i] = Instantiate(PlayerJoinIndicators[i - 1]);
+                }
+            }
+
+            orig_TryAddLocalPlayer(sender);
         }
         
         [MonoModReplace]

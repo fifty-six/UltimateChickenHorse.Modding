@@ -14,7 +14,7 @@ namespace Modding.Patches
         [MonoModIgnore]
         private bool[][] votes;
 
-        [MonoModReplace]
+        [MonoModConstructor]
         public KickTracker()
         {
             votes = new bool[Constants.PlayerCount][];
