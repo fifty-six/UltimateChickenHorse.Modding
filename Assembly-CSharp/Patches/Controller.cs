@@ -10,14 +10,14 @@ using UnityEngine;
 namespace Modding.Patches
 {
     [MonoModPatch("global::Controller")]
-    public abstract class Controller : global::Controller
+    public abstract class Controller : global::Controller, InputMethod
     {
         [MonoModConstructor]
-        public Controller()
+        protected Controller()
         {
             associatedChars = new Character.Animals[Constants.PlayerCount];
         }
-
+        
         [MonoModReplace]
         public new void AddPlayer(int player)
         {

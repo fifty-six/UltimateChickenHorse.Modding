@@ -54,9 +54,9 @@ namespace MonoMod
         {
             ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "CreateUnityMatch");
             ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "CheckHostConnectivity");
-            
+
             ReplaceLdcPlayerCt(nameof(SteamMatchmaker), "createSocialLobby");
-            
+
             ReplaceLdcPlayerCt(nameof(ChallengeScoreboard), "showResult");
 
             ReplaceLdcPlayerCt(nameof(ControllerDisconnect), "assignControllerToPlayer");
@@ -70,13 +70,25 @@ namespace MonoMod
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerScore), 3);
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerCount));
             ReplaceLdcPlayerCt(nameof(Scoreboard), nameof(Scoreboard.SetPlayerCharacter), 3);
-            
+
             ReplaceLdcPlayerCt(nameof(TurnIndicator), nameof(TurnIndicator.SetPlayerCount));
             ReplaceLdcPlayerCt(nameof(TurnIndicator), nameof(TurnIndicator.SetPlayerCharacter), 3);
             ReplaceLdcPlayerCt(nameof(TurnIndicator), nameof(TurnIndicator.SwapPhase), 3);
-            
+
+            var modder = MonoModRule.Modder;
+
+            // We need to handle some stuff in post as we add new members which won't get recognized here.
+            modder.PostProcessors += PostProcess;
+
+            foreach (MethodDefinition method in modder.Module.Types.SelectMany(type => type.Methods))
+                method.FixShortLongOps();
+        }
+
+        private static void PostProcess(MonoModder modder)
+        {
+            // GameControl.ReceiveEvent
             {
-                var md = GetMethod(nameof(GameControl), nameof(GameControl.ReceiveEvent));
+                MethodDefinition md = GetMethod(nameof(GameControl), nameof(GameControl.ReceiveEvent));
 
                 var cursor = new ILCursor(new ILContext(md));
 
@@ -87,38 +99,21 @@ namespace MonoMod
                     x => x.MatchStfld<GameControl>("inputPlayerNumber")
                 );
 
+                // Move the cursor out of the else if, one instruction into the sequence after
+                // This way we're after the ldarg.1 (e) in `e.Key`, so the branches of our if
+                // has it point at our code first.
+                cursor.Index += 1;
+                
                 // Instance for stfld.
                 cursor.Emit(OpCodes.Ldarg_0);
-
+                
                 // InputEvent for delegate
                 cursor.Emit(OpCodes.Ldarg_1);
 
-                cursor.Emit(OpCodes.Call, typeof(MonoModRules).GetMethod(nameof(GetPlayerNumber)));
+                cursor.Emit(OpCodes.Call, GetMethod("GameControl", "GetPlayerNumber"));
 
                 cursor.Emit<GameControl>(OpCodes.Stfld, "inputPlayerNumber");
             }
-
-            var modder = MonoModRule.Modder;
-            
-            foreach (MethodDefinition method in modder.Module.Types.SelectMany(type => type.Methods))
-                method.FixShortLongOps();
-        }
-
-        public static int GetPlayerNumber(InputEvent e)
-        {
-            int res = 0;
-
-            for (int i = 1; i <= Constants.PlayerCount; i++)
-            {
-                int pow = 1 << (i - 1);
-
-                if ((e.PlayerBitMask & pow) == pow)
-                {
-                    res = i;
-                }
-            }
-
-            return res;
         }
     }
 }
