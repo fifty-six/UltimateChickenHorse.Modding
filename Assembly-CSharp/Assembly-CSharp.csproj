@@ -1,4 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="./netfx.props" />
+    
     <PropertyGroup>
         <AssemblyName>Assembly-CSharp.mm</AssemblyName>
         <AssemblyTitle>Ultimate Chicken Horse - Modded</AssemblyTitle>
@@ -6,7 +8,7 @@
 
         <RootNamespace>Modding</RootNamespace>
         
-        <TargetFramework>net3.5</TargetFramework>
+        <TargetFramework>net403</TargetFramework>
         <LangVersion>9</LangVersion>
         
         <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -68,23 +70,33 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
-        <PackageReference Include="MonoMod" Version="21.1.11.1">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.3" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net40" Version="1.0.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="MonoMod" Version="22.7.31.1">
             <IncludeAssets>all</IncludeAssets>
         </PackageReference>
 
-        <PackageReference Include="MonoMod.RuntimeDetour" Version="21.1.11.1">
+        <PackageReference Include="MonoMod.RuntimeDetour" Version="22.7.31.1">
             <IncludeAssets>all</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
+        <Reference Include="AK.Wwise.Unity.API">
+          <HintPath>..\Vanilla\AK.Wwise.Unity.API.dll</HintPath>
+        </Reference>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
             <HintPath>../Vanilla/Assembly-CSharp.dll</HintPath>
             <SpecificVersion>False</SpecificVersion>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\Vanilla\Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
+        <Reference Include="com.unity.multiplayer-hlapi.Runtime">
+          <HintPath>..\Vanilla\com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>../Vanilla/UnityEngine.dll</HintPath>
@@ -109,9 +121,6 @@
         </Reference>
         <Reference Include="UnityEngine.JSONSerializeModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>../Vanilla/UnityEngine.JSONSerializeModule.dll</HintPath>
-        </Reference>
-        <Reference Include="UnityEngine.Networking, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\Vanilla\UnityEngine.Networking.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>../Vanilla/UnityEngine.ParticleSystemModule.dll</HintPath>

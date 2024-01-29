@@ -80,7 +80,7 @@ namespace MonoMod
         [SuppressMessage("ReSharper", "SuggestVarOrType_SimpleTypes")]
         static MonoModRules()
         {
-            ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "CreateUnityMatch");
+            ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "onLobbyJoined");
             ReplaceLdcPlayerCt(nameof(UnityMatchmaker), "CheckHostConnectivity");
 
             ReplaceLdcPlayerCt(nameof(SteamMatchmaker), "createSocialLobby");
@@ -111,7 +111,9 @@ namespace MonoMod
             modder.PostProcessors += PostProcess;
 
             foreach (MethodDefinition method in modder.Module.Types.SelectMany(type => type.Methods))
+            {
                 method.FixShortLongOps();
+            }
         }
 
         private static void PostProcess(MonoModder modder)

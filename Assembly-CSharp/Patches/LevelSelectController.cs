@@ -21,6 +21,16 @@ namespace Modding.Patches
 
         private void Awake()
         {
+            if (snapshotPortals.Length != Constants.PlayerCount)
+            {
+                Array.Resize(ref snapshotPortals, Constants.PlayerCount);
+                for (int i = 4; i < Constants.PlayerCount; i++)
+                {
+                    Debug.LogWarning($"snapShotPortals[{i}] is null. Instantiating clone - is this valid(?).");
+                    snapshotPortals[i] = Instantiate(snapshotPortals[i - 1]);
+                }
+            }
+            
             orig_Awake();
 
             MaxPlayers = Constants.PlayerCount;
@@ -32,7 +42,7 @@ namespace Modding.Patches
                 return;
             }
 
-            for (int i = 4; i <= Constants.PlayerCount; i++)
+            for (int i = 4; i < Constants.PlayerCount; i++)
             {
                 if (JoinedPlayers[i] != null)
                     continue;
